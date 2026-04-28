@@ -1,0 +1,62 @@
+# Runtime Parquet files (data layer outputs)
+pipeline/*.parquet
+bronze/**/*.parquet
+silver/**/*.parquet
+silver_temp/
+gold/**/*.parquet
+quarantine/**/*.parquet
+
+# Session data layer outputs (auto-generated, never commit)
+sessions/bronze/
+sessions/silver/
+sessions/gold/
+sessions/quarantine/
+
+# DuckDB catalog
+pipeline/dbt_catalog.duckdb
+
+# dbt runtime artifacts
+dbt/logs/
+dbt/target/
+
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDE artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Claude Code local configuration
+.claude/
+
+# Keep all .gitkeep files tracked
+!**/.gitkeep
