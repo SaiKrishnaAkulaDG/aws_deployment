@@ -15,6 +15,9 @@ sessions/quarantine/
 # DuckDB catalog
 pipeline/dbt_catalog.duckdb
 
+# Infrastructure files (never commit)
+infra/
+
 # dbt runtime artifacts
 dbt/logs/
 dbt/target/
