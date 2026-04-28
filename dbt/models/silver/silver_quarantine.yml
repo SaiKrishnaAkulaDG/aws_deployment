@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: silver_quarantine
+    description: Silver quarantine layer - rejected transactions and accounts with audit fields
+    columns:
+      - name: transaction_id
+        description: Transaction identifier (null for account rejections)
+      - name: account_id
+        description: Account identifier
+      - name: transaction_date
+        description: Transaction date (null for account rejections)
+      - name: amount
+        description: Transaction amount (null for account rejections)
+      - name: transaction_code
+        description: Transaction code (null for account rejections)
+      - name: merchant_name
+        description: Merchant name (null for account rejections)
+      - name: channel
+        description: Transaction channel (null for account rejections)
+      - name: customer_name
+        description: Customer name (null for transaction rejections)
+      - name: account_status
+        description: Account status (null for transaction rejections)
+      - name: credit_limit
+        description: Credit limit (null for transaction rejections)
+      - name: current_balance
+        description: Current balance (null for transaction rejections)
+      - name: open_date
+        description: Account opening date (null for transaction rejections)
+      - name: billing_cycle_start
+        description: Billing cycle start day (null for transaction rejections)
+      - name: billing_cycle_end
+        description: Billing cycle end day (null for transaction rejections)
+      - name: _pipeline_run_id
+        description: Pipeline run UUID — audit trail (INV-04)
+        tests:
+          - not_null
+      - name: _ingested_at
+        description: UTC timestamp when record was ingested into Bronze layer
+      - name: _source_file
+        description: Source CSV filename from Bronze
+      - name: _rejection_reason
+        description: Reason for rejection (SIL-Q-01, SIL-Q-02)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['NULL_REQUIRED_FIELD', 'INVALID_AMOUNT', 'DUPLICATE_TRANSACTION_ID', 'INVALID_TRANSACTION_CODE', 'INVALID_CHANNEL', 'INVALID_ACCOUNT_STATUS']
+      - name: _rejected_at
+        description: UTC timestamp when this record was rejected
+      - name: record_type
+        description: Type of record (TRANSACTION or ACCOUNT)

@@ -1,0 +1,26 @@
+name: credit_card_transactions_lake
+version: "1.0.0"
+config-version: 2
+profile: credit_card_transactions_lake
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+data-paths: ["data"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+vars:
+  date_var: "2024-01-01"
+
+models:
+  credit_card_transactions_lake:
+    silver:
+      +materialized: table
+    gold:
+      +materialized: table

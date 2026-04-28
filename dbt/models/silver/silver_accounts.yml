@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: silver_accounts
+    description: Silver accounts layer - latest record per account_id with metadata fields
+    columns:
+      - name: account_id
+        description: Account identifier (unique per Silver layer - SIL-A-01)
+        tests:
+          - not_null
+          - unique
+      - name: customer_name
+        description: Customer name
+      - name: account_status
+        description: Account status (ACTIVE, SUSPENDED, CLOSED)
+      - name: credit_limit
+        description: Approved credit limit in GBP
+      - name: current_balance
+        description: Current outstanding balance
+      - name: open_date
+        description: Account opening date
+      - name: billing_cycle_start
+        description: Billing cycle start day
+      - name: billing_cycle_end
+        description: Billing cycle end day
+      - name: _pipeline_run_id
+        description: Pipeline run UUID — audit trail (INV-04)
+        tests:
+          - not_null
+      - name: _source_file
+        description: Source CSV filename from Bronze
+      - name: _bronze_ingested_at
+        description: UTC timestamp when record was ingested into Bronze layer
+      - name: _record_valid_from
+        description: UTC timestamp when this record version became valid in Silver layer

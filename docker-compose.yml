@@ -1,0 +1,15 @@
+services:
+  pipeline:
+    build: .
+    container_name: cc_pipeline
+    working_dir: /app
+    volumes:
+      # Mount entire repo — Decision 4: silver/ and silver_temp/ on same filesystem via single parent mount
+      - .:/app:rw
+      # Override source/ as read-only (INV-06)
+      - ./source:/app/source:ro
+    environment:
+      DBT_PROFILES_DIR: /app/dbt
+      PYTHONUNBUFFERED: 1
+    stdin_open: true
+    tty: true

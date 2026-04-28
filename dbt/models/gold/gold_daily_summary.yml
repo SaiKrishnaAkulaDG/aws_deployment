@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: gold_daily_summary
+    description: |
+      Gold Daily Transaction Summary — One aggregated record per calendar day based on transaction_date.
+      Includes only resolvable transactions (WHERE _is_resolvable=true). Provides comprehensive daily metrics
+      including transaction counts, amounts, channel breakdown, and transaction type details.
+      Stored at: gold/daily_summary/data.parquet (non-partitioned)
+    columns:
+      - name: transaction_date
+        description: Calendar day of the transactions (DATE format, ISO 8601)
+        tests:
+          - not_null
+          - unique  # GOLD-D-01: One record per date
+
+      - name: total_transactions
+        description: Count of all Silver-layer transactions where _is_resolvable = true for this date
+        tests:
+          - not_null
+
+      - name: total_signed_amount
+        description: Sum of _signed_amount from all resolvable transactions (DR positive, CR negative)
+        tests:
+          - not_null
+
+      - name: online_transactions
+        description: Count of transactions conducted via the ONLINE channel for this date
+        tests:
+          - not_null
+
+      - name: instore_transactions
+        description: Count of transactions conducted via the IN_STORE channel for this date
+        tests:
+          - not_null
+
+      - name: transactions_by_type
+        description: |
+          JSON object containing count and sum of _signed_amount per transaction_type.
+          Structure: {"PURCHASE": {"count": N, "sum": X}, "PAYMENT": {"count": N, "sum": X}, ...}
+          Includes all 5 transaction types: PURCHASE, PAYMENT, FEE, INTEREST, REFUND
+          (Note: Implemented as JSON due to DuckDB STRUCT aggregation limitations; functionally equivalent to spec STRUCT requirement)
+        tests:
+          - not_null
+
+      - name: _computed_at
+        description: UTC timestamp indicating when the record was last computed/aggregated
+        tests:
+          - not_null
+
+      - name: _pipeline_run_id
+        description: Pipeline run identifier - tracks data lineage and audit chain (R-04, INV-04)
+        tests:
+          - not_null  # R-04: INV-04 GLOBAL enforcement - every Gold record must carry non-null run ID
+
+      - name: _source_period_start
+        description: Earliest transaction_date from the source Silver records included in this aggregation
+        tests:
+          - not_null
+
+      - name: _source_period_end
+        description: Latest transaction_date from the source Silver records included in this aggregation
+        tests:
+          - not_null

@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: silver_transactions
+    description: |
+      Silver Transactions — Validated and enriched transaction records from Bronze after passing all quality checks.
+
+      **Promotion Logic:** Records are promoted from Bronze transactions with sign application based on debit_credit_indicator from Transaction Codes, and account_id validation against Silver Accounts. Unknown accounts are not quarantined but flagged with _is_resolvable=false for later resolution.
+
+      **Partitioning:** Data is partitioned by Bronze source date: silver/transactions/date=YYYY-MM-DD/data.parquet
+
+      **Deduplication:** Strictly enforced across all partitions — any transaction_id already present is rejected to quarantine. Re-running promotion for processed dates does not create duplicates (idempotent).
+
+      **Audit Columns:** _source_file and _bronze_ingested_at carried from Bronze. _pipeline_run_id identifies execution, _promoted_at tracks Silver layer timestamp. _is_resolvable=false excludes unresolved accounts from Gold aggregations. _signed_amount applies sign: DR=positive, CR=negative (SIL-T-05).
+
+      **Constraints:** SIL-T-02 (unique transaction_id), SIL-T-08 (account resolvability flag), INV-04 (non-null _pipeline_run_id)
+    columns:
+      - name: transaction_id
+        description: Transaction identifier (unique per Silver layer - SIL-T-02)
+        tests:
+          - unique
+      - name: account_id
+        description: Account identifier
+      - name: transaction_date
+        description: Date of transaction
+      - name: amount
+        description: Transaction amount (original unsigned)
+      - name: transaction_code
+        description: Transaction code
+      - name: merchant_name
+        description: Merchant name
+      - name: channel
+        description: Transaction channel (ONLINE or IN_STORE)
+      - name: debit_credit_indicator
+        description: DR (debit) or CR (credit) from reference dataset
+      - name: _signed_amount
+        description: Amount with sign applied (DR=positive, CR=negative) - SIL-T-05
+        tests:
+          - not_null
+      - name: _is_resolvable
+        description: True if account_id exists in Silver Accounts; false if unresolvable (SIL-T-08)
+      - name: _pipeline_run_id
+        description: Pipeline run UUID — audit trail (INV-04)
+        tests:
+          - not_null
+      - name: _bronze_ingested_at
+        description: UTC timestamp when record was ingested into Bronze layer
+      - name: _source_file
+        description: Source CSV filename from Bronze
+      - name: _promoted_at
+        description: UTC timestamp when record was promoted to Silver layer

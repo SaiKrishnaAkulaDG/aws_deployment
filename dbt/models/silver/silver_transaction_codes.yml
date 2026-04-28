@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: silver_transaction_codes
+    description: Silver transaction codes reference table with validation tests
+    columns:
+      - name: transaction_code
+        description: Transaction code identifier
+        tests:
+          - not_null
+      - name: description
+        description: Transaction code description
+      - name: debit_credit_indicator
+        description: DR (debit) or CR (credit)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['DR', 'CR']
+      - name: transaction_type
+        description: Type of transaction
+        tests:
+          - not_null
+      - name: affects_balance
+        description: Whether transaction affects account balance
+      - name: _pipeline_run_id
+        description: Pipeline run UUID — audit trail (INV-04)
+        tests:
+          - not_null
+      - name: _ingested_at
+        description: UTC timestamp of ingestion
+      - name: _source_file
+        description: Source CSV filename

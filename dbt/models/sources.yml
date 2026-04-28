@@ -1,0 +1,75 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: Bronze layer Parquet partitions from Bronze ingestion
+    tables:
+      - name: bronze_transaction_codes
+        description: Reference table for transaction codes and debit/credit indicators (read via read_parquet)
+        columns:
+          - name: transaction_code
+            description: Transaction code identifier
+          - name: description
+            description: Transaction code description
+          - name: debit_credit_indicator
+            description: DR (debit) or CR (credit)
+          - name: transaction_type
+            description: Type of transaction
+          - name: affects_balance
+            description: Whether transaction affects account balance
+          - name: _pipeline_run_id
+            description: Pipeline run UUID
+          - name: _ingested_at
+            description: UTC timestamp of ingestion
+          - name: _source_file
+            description: Source CSV filename
+
+      - name: bronze_accounts
+        description: Account master records from Bronze layer (partitioned by date, read via read_parquet with glob)
+        columns:
+          - name: account_id
+            description: Account identifier
+          - name: customer_name
+            description: Customer name
+          - name: account_status
+            description: Account status (ACTIVE, SUSPENDED, CLOSED)
+          - name: credit_limit
+            description: Approved credit limit in GBP
+          - name: current_balance
+            description: Current outstanding balance
+          - name: open_date
+            description: Account opening date
+          - name: billing_cycle_start
+            description: Billing cycle start day
+          - name: billing_cycle_end
+            description: Billing cycle end day
+          - name: _pipeline_run_id
+            description: Pipeline run UUID
+          - name: _ingested_at
+            description: UTC timestamp of ingestion
+          - name: _source_file
+            description: Source CSV filename
+
+      - name: bronze_transactions
+        description: Raw transactions from Bronze layer (partitioned by date, read via read_parquet with glob)
+        columns:
+          - name: transaction_id
+            description: Transaction identifier
+          - name: account_id
+            description: Account identifier
+          - name: transaction_date
+            description: Date of transaction
+          - name: amount
+            description: Transaction amount
+          - name: transaction_code
+            description: Transaction code
+          - name: merchant_name
+            description: Merchant name
+          - name: channel
+            description: Transaction channel (POS, ONLINE, ATM, MOBILE, BRANCH)
+          - name: _pipeline_run_id
+            description: Pipeline run UUID
+          - name: _ingested_at
+            description: UTC timestamp of ingestion
+          - name: _source_file
+            description: Source CSV filename

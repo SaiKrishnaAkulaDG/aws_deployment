@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: gold_weekly_account_summary
+    description: |
+      Gold — Weekly Account Transaction Aggregates. One record per account per calendar week (ISO week, Monday to Sunday).
+      Only includes accounts with at least one resolvable transaction in the week. Aggregates transactions by type:
+      PURCHASE metrics (count & average), and sums for PAYMENT, FEE, and INTEREST type transactions.
+      Includes closing balance from Silver Accounts and computation metadata.
+      Stored at: gold/weekly_account_summary/data.parquet (non-partitioned)
+    columns:
+      - name: week_start_date
+        description: Monday of the calendar week (ISO week start)
+        tests:
+          - not_null
+
+      - name: week_end_date
+        description: Sunday of the calendar week (ISO week end)
+        tests:
+          - not_null
+
+      - name: account_id
+        description: Account identifier
+        tests:
+          - not_null
+
+      - name: total_purchases
+        description: Count of PURCHASE type transactions in the week
+        tests:
+          - not_null
+
+      - name: avg_purchase_amount
+        description: Average _signed_amount for PURCHASE type transactions in the week
+        tests:
+          - not_null
+
+      - name: total_payments
+        description: Sum of _signed_amount for PAYMENT type transactions in the week (DECIMAL)
+        tests:
+          - not_null
+
+      - name: total_fees
+        description: Sum of _signed_amount for FEE type transactions in the week (DECIMAL)
+        tests:
+          - not_null
+
+      - name: total_interest
+        description: Sum of _signed_amount for INTEREST type transactions in the week (DECIMAL)
+        tests:
+          - not_null
+
+      - name: closing_balance
+        description: current_balance from Silver Accounts as of week_end_date (or most recent available). INNER JOIN ensures non-null (GOLD-W-05).
+        tests:
+          - not_null  # GOLD-W-05: INNER JOIN to silver_accounts guarantees non-null
+
+      - name: _computed_at
+        description: UTC timestamp indicating when this record was last computed/aggregated
+        tests:
+          - not_null
+
+      - name: _pipeline_run_id
+        description: Pipeline run identifier - tracks data lineage and audit chain (R-04, INV-04)
+        tests:
+          - not_null  # R-04: INV-04 GLOBAL enforcement - every Gold record must carry non-null run ID
+
+    unique_combinations_of_columns:
+      - combination: [account_id, week_start_date]
+        description: One record per account per week (GOLD-W-01)
